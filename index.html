@@ -1,0 +1,319 @@
+<!DOCTYPE html>
+<!-- saved from url=(0129)file:///C:/Users/649161/Desktop/%E5%8B%9E%E5%B7%A5%E9%80%80%E4%BC%91%E9%87%91%E6%96%B0%E5%88%B6%E8%A8%88%E7%AE%97%E5%99%A8V5.html -->
+<html lang="zh-Hant"><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>勞工退休金新制計算器</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0;}
+body{font-family:Arial,"Microsoft JhengHei",sans-serif;background:#f0f4f8;color:#222;padding:20px;}
+h1{font-size:20px;font-weight:600;color:#1F4E79;margin-bottom:18px;}
+.card{background:#fff;border-radius:10px;border:1px solid #dde4ee;padding:18px 20px;margin-bottom:16px;}
+.card-title{font-size:13px;font-weight:600;color:#1F4E79;margin-bottom:12px;padding-bottom:6px;border-bottom:1.5px solid #BDD7EE;}
+.params{display:grid;grid-template-columns:1fr 1fr;gap:12px;}
+.params-5{display:grid;grid-template-columns:repeat(5,1fr);gap:12px;}
+.field label{display:block;font-size:11px;color:#666;margin-bottom:4px;}
+.field input{width:100%;padding:6px 10px;border:1px solid #ccd6e0;border-radius:6px;font-size:13px;background:#fff;color:#222;}
+.field input:focus{outline:none;border-color:#1F4E79;}
+.field .hint{font-size:10px;color:#aaa;margin-top:3px;}
+.section-label{font-size:12px;font-weight:600;color:#555;margin:14px 0 8px;}
+
+/* 異動表格 */
+table.events{width:100%;border-collapse:collapse;font-size:13px;}
+table.events th{background:#1F4E79;color:#fff;padding:7px 10px;text-align:center;font-weight:500;}
+table.events td{padding:5px 8px;border-bottom:1px solid #e8eef5;text-align:center;vertical-align:middle;}
+table.events tr.row-active td{background:#f0f8e8;}
+table.events tr.row-leave td{background:#f9f7f4;}
+table.events input[type=date]{border:1px solid #ccd6e0;border-radius:4px;padding:3px 6px;font-size:12px;background:#fff;color:#222;}
+
+/* 自訂下拉 */
+.sel-wrap{position:relative;display:inline-block;width:120px;}
+.sel-display{display:flex;align-items:center;gap:6px;padding:4px 28px 4px 10px;border-radius:6px;cursor:pointer;font-size:12px;font-weight:600;user-select:none;border:1.5px solid transparent;transition:box-shadow .15s;position:relative;}
+.sel-display::after{content:"▾";position:absolute;right:8px;font-size:10px;opacity:.7;}
+.sel-display.active-type{background:#EAF3DE;color:#2B5A07;border-color:#9DCF6A;}
+.sel-display.active-type:hover{box-shadow:0 0 0 2px #9DCF6A55;}
+.sel-display.leave-type{background:#F1EFE8;color:#5F4F2A;border-color:#C9B99A;}
+.sel-display.leave-type:hover{box-shadow:0 0 0 2px #C9B99A55;}
+.sel-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0;}
+.dot-active{background:#3B8C0F;}
+.dot-leave{background:#A0896A;}
+.sel-dropdown{display:none;position:absolute;top:calc(100% + 4px);left:0;z-index:99;background:#fff;border-radius:8px;overflow:hidden;box-shadow:0 4px 16px rgba(0,0,0,.12);min-width:120px;}
+.sel-dropdown.open{display:block;}
+.sel-option{display:flex;align-items:center;gap:8px;padding:8px 12px;cursor:pointer;font-size:12px;font-weight:600;transition:background .1s;}
+.sel-option:hover{filter:brightness(.95);}
+.opt-active{background:#EAF3DE;color:#2B5A07;}
+.opt-leave{background:#F1EFE8;color:#5F4F2A;}
+
+.del-btn{background:none;border:none;color:#b33;font-size:15px;cursor:pointer;padding:2px 6px;border-radius:4px;}
+.del-btn:hover{background:#fde8e8;}
+.add-btn{font-size:12px;padding:5px 14px;border:1px solid #ccd6e0;border-radius:6px;background:#f0f4f8;color:#1F4E79;cursor:pointer;font-weight:500;}
+.add-btn:hover{background:#e0eaf5;}
+.empty-hint{color:#bbb;font-size:12px;padding:14px 0;text-align:center;}
+
+/* 結果 */
+.result-bg{background:#f0f6ff;border-radius:8px;padding:14px 16px;}
+.result-label{font-size:12px;color:#555;margin-bottom:10px;font-weight:600;}
+.interval-row{display:flex;align-items:center;gap:8px;font-size:12px;padding:5px 0;border-bottom:1px solid #dde4ee;}
+.interval-row:last-child{border-bottom:none;}
+.badge{font-size:11px;padding:2px 9px;border-radius:20px;}
+.badge-active{background:#EAF3DE;color:#3B6D11;}
+.badge-leave{background:#F1EFE8;color:#5F5E5A;}
+.interval-days{font-weight:600;min-width:44px;text-align:right;}
+.total-row{display:flex;justify-content:space-between;font-size:13px;font-weight:600;border-top:1.5px solid #BDD7EE;padding-top:10px;margin-top:6px;color:#1F4E79;}
+
+/* 金額區塊 */
+.amount-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:12px;}
+.amount-box{background:#fff;border-radius:8px;padding:12px 16px;border:1px solid #dde4ee;}
+.amount-box.single{grid-column:1/-1;}
+.amount-top{display:flex;justify-content:space-between;align-items:baseline;}
+.amount-label{font-size:12px;color:#666;}
+.amount-val{font-size:24px;font-weight:700;color:#1F4E79;}
+.formula-note{font-size:11px;color:#aaa;margin-top:4px;text-align:right;}
+.amount-tag{display:inline-block;font-size:10px;padding:1px 7px;border-radius:10px;margin-bottom:4px;}
+.tag-emp{background:#EBF3FB;color:#1F4E79;}
+.tag-self{background:#FFF0D6;color:#8B5E00;}
+</style>
+</head>
+<body>
+<h1>勞退新制計算小工具 by Yennn</h1>
+
+<div class="card">
+  <div class="card-title">基本參數</div>
+  <div class="params-5">
+    <div class="field">
+      <label>月提繳工資（元）</label>
+      <input type="number" id="wage" placeholder="請輸入工資" oninput="calc()">
+    </div>
+    <div class="field">
+      <label>雇主提繳率（%）</label>
+      <input type="number" id="emp-rate" value="6" step="0.1" oninput="calc()">
+      <div class="hint">預設 6%</div>
+    </div>
+    <div class="field">
+      <label>個人自願提繳率（%）</label>
+      <input type="number" id="self-rate" placeholder="未填視為 0%" step="0.1" oninput="calc()">
+      <div class="hint">選填，0~6%</div>
+    </div>
+    <div class="field" style="grid-column:span 2">
+      <label>計算年月</label>
+      <input type="month" id="month" oninput="calc()">
+    </div>
+  </div>
+</div>
+
+<div class="card">
+  <div class="card-title">異動紀錄</div>
+  <div class="section-label">依序填入每筆異動的起始日與狀態（迄日自動推算）</div>
+  <table class="events">
+    <thead><tr><th>異動起始日</th><th>狀態</th><th></th></tr></thead>
+    <tbody id="events-body"></tbody>
+  </table>
+  <div id="empty-hint" class="empty-hint" style="display: block;">尚無異動紀錄，點擊下方按鈕新增</div>
+  <div style="margin-top:10px;">
+    <button class="add-btn" onclick="addEvent()">＋ 新增異動</button>
+  </div>
+</div>
+
+<div class="card">
+  <div class="card-title">計算結果</div>
+  <div class="result-bg">
+    <div class="result-label">提繳區間明細</div>
+    <div id="intervals"><div class="interval-row">
+      <span class="badge badge-active">提繳</span>
+      <span style="flex:1;color:#555">第 1 日 ～ 第 30 日</span>
+      <span class="interval-days" style="color:#3B6D11">+30 天</span>
+    </div><div class="total-row"><span>應提繳天數合計</span><span>30 天 / 30 天</span></div></div>
+    <div class="amount-grid" id="amount-grid">
+      <div class="amount-box single">
+        <div class="amount-tag tag-emp">雇主提繳</div>
+        <div class="amount-top">
+          <div class="amount-label">2026 年 06 月 應提繳退休金</div>
+          <div class="amount-val">0 元</div>
+        </div>
+        <div class="formula-note">0 × 6% × 30 ÷ 30 = 0.00 → 0 元</div>
+      </div></div>
+  </div>
+</div>
+
+<script>
+// 自動設定當月
+const _now = new Date();
+document.getElementById('month').value =
+  _now.getFullYear() + '-' + String(_now.getMonth()+1).padStart(2,'0');
+
+let events = [];
+
+document.addEventListener('click', e => {
+  if (!e.target.closest('.sel-wrap'))
+    document.querySelectorAll('.sel-dropdown').forEach(d=>d.classList.remove('open'));
+});
+
+function makeSelect(idx, currentType) {
+  const opts = [
+    {val:'active',label:'提繳',cls:'opt-active',dotCls:'dot-active',dispCls:'active-type'},
+    {val:'leave', label:'停繳',cls:'opt-leave', dotCls:'dot-leave', dispCls:'leave-type'},
+  ];
+  const cur = opts.find(o=>o.val===currentType)||opts[0];
+  const optsHtml = opts.map(o=>`
+    <div class="sel-option ${o.cls}" onclick="setType(${idx},'${o.val}')">
+      <span class="sel-dot ${o.dotCls}"></span>${o.label}
+    </div>`).join('');
+  return `<div class="sel-wrap" id="selwrap-${idx}">
+    <div class="sel-display ${cur.dispCls}" id="seldisp-${idx}" onclick="toggleDrop(${idx},event)">
+      <span class="sel-dot ${cur.dotCls}"></span>
+      <span id="sellbl-${idx}">${cur.label}</span>
+    </div>
+    <div class="sel-dropdown" id="seldrop-${idx}">${optsHtml}</div>
+  </div>`;
+}
+
+function toggleDrop(idx,e){
+  e.stopPropagation();
+  const drop=document.getElementById('seldrop-'+idx);
+  const was=drop.classList.contains('open');
+  document.querySelectorAll('.sel-dropdown').forEach(d=>d.classList.remove('open'));
+  if(!was) drop.classList.add('open');
+}
+
+function setType(idx,val){
+  events[idx].type=val;
+  const map={active:{label:'提繳',dotCls:'dot-active',dispCls:'active-type'},
+             leave: {label:'停繳',dotCls:'dot-leave', dispCls:'leave-type'}};
+  const o=map[val];
+  const disp=document.getElementById('seldisp-'+idx);
+  disp.className='sel-display '+o.dispCls;
+  disp.querySelector('.sel-dot').className='sel-dot '+o.dotCls;
+  document.getElementById('sellbl-'+idx).textContent=o.label;
+  document.getElementById('seldrop-'+idx).classList.remove('open');
+  document.querySelectorAll('#events-body tr')[idx].className=
+    val==='active'?'row-active':'row-leave';
+  calc();
+}
+
+function renderTable(){
+  const body=document.getElementById('events-body');
+  body.innerHTML='';
+  document.getElementById('empty-hint').style.display=events.length?'none':'block';
+  events.forEach((ev,i)=>{
+    const tr=document.createElement('tr');
+    tr.className=ev.type==='active'?'row-active':'row-leave';
+    tr.innerHTML=`
+      <td><input type="date" value="${ev.date}" onchange="events[${i}].date=this.value;sortAndCalc()"></td>
+      <td>${makeSelect(i,ev.type)}</td>
+      <td><button class="del-btn" onclick="removeEvent(${i})">✕</button></td>`;
+    body.appendChild(tr);
+  });
+}
+
+function addEvent(){
+  const ym=document.getElementById('month').value||
+    (_now.getFullYear()+'-'+String(_now.getMonth()+1).padStart(2,'0'));
+  events.push({date:ym+'-01',type:'active'});
+  sortAndCalc();
+}
+function removeEvent(i){events.splice(i,1);sortAndCalc();}
+function sortAndCalc(){
+  events.sort((a,b)=>a.date.localeCompare(b.date));
+  renderTable();calc();
+}
+
+function getYM(){
+  const v=document.getElementById('month').value;
+  if(!v) return null;
+  const [y,m]=v.split('-').map(Number);
+  return {y,m,prefix:`${y}-${String(m).padStart(2,'0')}`};
+}
+
+function roundPension(raw){return Math.round(Math.round(raw*10)/10);}
+
+function calc(){
+  const wage     = parseFloat(document.getElementById('wage').value)||0;
+  const empRate  = parseFloat(document.getElementById('emp-rate').value)||0;
+  const selfRate = parseFloat(document.getElementById('self-rate').value)||0;
+  const ym = getYM();
+
+  const grid = document.getElementById('amount-grid');
+
+  if(!ym){
+    document.getElementById('intervals').innerHTML='';
+    grid.innerHTML='';
+    return;
+  }
+  const {y,m,prefix}=ym;
+
+  const thisMonth=events
+    .filter(e=>e.date.startsWith(prefix))
+    .map(e=>({...e,day:parseInt(e.date.split('-')[2])}))
+    .sort((a,b)=>a.day-b.day);
+
+  const prevEvents=events.filter(e=>e.date<prefix+'-01');
+  let initStatus=prevEvents.length===0?'active'
+    :(prevEvents[prevEvents.length-1].type==='leave'?'leave':'active');
+
+  let segs=[],cur=initStatus,from=1;
+  for(const ev of thisMonth){
+    if(ev.day>from) segs.push({from,to:ev.day-1,status:cur});
+    cur=ev.type; from=ev.day;
+  }
+  if(from<=30) segs.push({from,to:30,status:cur});
+
+  let totalDays=0,html='';
+  for(const seg of segs){
+    const days=seg.to-seg.from+1;
+    const on=seg.status==='active';
+    if(on) totalDays+=days;
+    html+=`<div class="interval-row">
+      <span class="badge ${on?'badge-active':'badge-leave'}">${on?'提繳':'停繳'}</span>
+      <span style="flex:1;color:#555">第 ${seg.from} 日 ～ 第 ${seg.to} 日</span>
+      <span class="interval-days" style="color:${on?'#3B6D11':'#999'}">${on?'+':''}${days} 天</span>
+    </div>`;
+  }
+  html+=`<div class="total-row"><span>應提繳天數合計</span><span>${totalDays} 天 / 30 天</span></div>`;
+  document.getElementById('intervals').innerHTML=html;
+
+  // 金額計算
+  const ymLabel=`${y} 年 ${String(m).padStart(2,'0')} 月`;
+  const empRaw  = wage*(empRate/100)*totalDays/30;
+  const selfRaw = wage*(selfRate/100)*totalDays/30;
+  const empAmt  = roundPension(empRaw);
+  const selfAmt = roundPension(selfRaw);
+
+  const hasSelf = selfRate > 0;
+
+  if(hasSelf){
+    grid.innerHTML=`
+      <div class="amount-box">
+        <div class="amount-tag tag-emp">雇主提繳</div>
+        <div class="amount-top">
+          <div class="amount-label">${ymLabel}</div>
+          <div class="amount-val">${empAmt.toLocaleString()} 元</div>
+        </div>
+        <div class="formula-note">${wage.toLocaleString()} × ${empRate}% × ${totalDays} ÷ 30 = ${empRaw.toFixed(2)} → ${empAmt.toLocaleString()} 元</div>
+      </div>
+      <div class="amount-box">
+        <div class="amount-tag tag-self">個人自願提繳</div>
+        <div class="amount-top">
+          <div class="amount-label">${ymLabel}</div>
+          <div class="amount-val">${selfAmt.toLocaleString()} 元</div>
+        </div>
+        <div class="formula-note">${wage.toLocaleString()} × ${selfRate}% × ${totalDays} ÷ 30 = ${selfRaw.toFixed(2)} → ${selfAmt.toLocaleString()} 元</div>
+      </div>`;
+  } else {
+    grid.innerHTML=`
+      <div class="amount-box single">
+        <div class="amount-tag tag-emp">雇主提繳</div>
+        <div class="amount-top">
+          <div class="amount-label">${ymLabel} 應提繳退休金</div>
+          <div class="amount-val">${empAmt.toLocaleString()} 元</div>
+        </div>
+        <div class="formula-note">${wage.toLocaleString()} × ${empRate}% × ${totalDays} ÷ 30 = ${empRaw.toFixed(2)} → ${empAmt.toLocaleString()} 元</div>
+      </div>`;
+  }
+}
+
+renderTable();
+calc();
+</script>
+
+
+</body></html>
