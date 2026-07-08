@@ -104,15 +104,22 @@ table.events input[type=date]{border:1px solid #ccd6e0;border-radius:4px;padding
 <div class="card">
   <div class="card-title">異動紀錄</div>
   <div class="section-label">依序填入每筆異動的起始日與狀態（迄日自動推算）</div>
-  <table class="events">
+  
+
+    <div>
+      <button class="add-btn" onclick="addEvent()">＋ 新增異動</button>
+      <button class="clear-btn" onclick="clearEvents()">🗑️ 刪除全部</button>
+    </div>
+<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;">
+<table class="events">
     <thead><tr><th>異動起始日</th><th>狀態</th><th></th></tr></thead>
     <tbody id="events-body"></tbody>
   </table>
-  <div id="empty-hint" class="empty-hint" style="display: block;">尚無異動紀錄，點擊下方按鈕新增</div>
-  <div style="margin-top:10px;">
-    <button class="add-btn" onclick="addEvent()">＋ 新增異動</button>
+  
   </div>
+  <div id="empty-hint" class="empty-hint" style="display: block;">尚無異動紀錄，點擊上方按鈕新增</div>
 </div>
+
 
 <div class="card">
   <div class="card-title">計算結果</div>
