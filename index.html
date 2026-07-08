@@ -82,7 +82,12 @@ table.events input[type=date]{border:1px solid #ccd6e0;border-radius:4px;padding
   <div class="params-5">
     <div class="field">
       <label>月提繳工資（元）</label>
-      <input type="number" id="wage" placeholder="請輸入工資" oninput="calc()">
+      <div style="display:flex;gap:6px;align-items:center;">
+        <input type="number" id="wage" placeholder="請輸入工資" oninput="calc()" style="flex:1;">
+        <button onclick="document.getElementById('wage').value='';calc();"
+          style="flex-shrink:0;width:28px;height:28px;border:none;border-radius:50%;background:#f0e0e0;color:#b33;font-size:14px;cursor:pointer;line-height:1;"
+          title="清除工資">✕</button>
+      </div>
     </div>
     <div class="field">
       <label>雇主提繳率（%）</label>
@@ -119,7 +124,6 @@ table.events input[type=date]{border:1px solid #ccd6e0;border-radius:4px;padding
   </div>
   <div id="empty-hint" class="empty-hint" style="display: block;">尚無異動紀錄，點擊上方按鈕新增</div>
 </div>
-
 
 <div class="card">
   <div class="card-title">計算結果</div>
@@ -219,6 +223,9 @@ function addEvent(){
   sortAndCalc();
 }
 function removeEvent(i){events.splice(i,1);sortAndCalc();}
+function clearEvents(){
+  events=[];renderTable();calc();
+}
 function sortAndCalc(){
   events.sort((a,b)=>a.date.localeCompare(b.date));
   renderTable();calc();
